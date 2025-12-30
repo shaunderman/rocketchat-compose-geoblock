@@ -14,10 +14,6 @@ services:
         # this should be idented so it works inside the heredoc concatenation later
         cat <<'EOF' > /traefik_config/services.tpl
           services:
-#            grafana:
-#              loadBalancer:
-#                servers:
-#                  - url: "http://grafana:3000"
             rocketchat:
               loadBalancer:
                 healthCheck:
@@ -42,16 +38,6 @@ services:
                 - http
               service: rocketchat
               rule: Host(`{{ env "DOMAIN" }}`) && PathPrefix(`/`)
-#            grafana:
-#              entryPoints:
-#                - http
-#              service: grafana
-#              rule: |-
-#                {{ if eq (env "GRAFANA_DOMAIN") "" }}
-#                  Host(`{{ env "DOMAIN" }}`) && PathPrefix(`{{ env "GRAFANA_PATH" }}`)
-#                {{ else }}
-#                  Host(`{{ env "GRAFANA_DOMAIN" }}`)
-#                {{ end }}
         EOF
 
         cat <<'EOF' > /traefik_config/https/dynamic.yml
@@ -71,18 +57,6 @@ services:
               rule: Host(`{{ env "DOMAIN" }}`)
               tls:
                 certResolver: le
-#            grafana:
-#              entryPoints:
-#                - https
-#              rule: |
-#                {{ if eq (env "GRAFANA_DOMAIN") "" }}
-#                  Host(`{{ env "DOMAIN" }}`) && PathPrefix(`{{ env "GRAFANA_PATH" }}`)
-#                {{ else }}
-#                  Host(`{{ env "GRAFANA_DOMAIN" }}`)
-#                {{ end }}
-#              service: grafana
-#              tls:
-#                certResolver: le
         EOF
 
         cat /traefik_config/services.tpl >> /traefik_config/http/dynamic.yml
@@ -104,8 +78,6 @@ services:
       - traefik-init
     environment:
       DOMAIN: "${DOMAIN:-localhost}"
-#      GRAFANA_DOMAIN: "${GRAFANA_DOMAIN-}"
-#      GRAFANA_PATH: "${GRAFANA_PATH-/}"
       TRAEFIK_PROTOCOL: "${TRAEFIK_PROTOCOL-}"
     command:
       - --api.insecure=${TRAEFIK_API_INSECURE:-false}
